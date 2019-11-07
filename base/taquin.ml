@@ -763,7 +763,12 @@ echange_case taille (50*taille);;
 res taille;;
 
 
-remp_graph taille;;
-(* #use "taquin.ml";; *)*)
+(*
+Commandes utiles
+#load "graphics.cma";;
+#use "taquin.ml";; 
+*)
+
+*)
 remp_graph taille;;
 echange_case taille (50*taille);;
