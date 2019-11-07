@@ -3,7 +3,7 @@ module R = Random;;
 module A = Array;;
 module U = Unix;;
 
-let taille = 7;;
+let taille = 4;;
 let div = 700/taille;;
 
 open_graph " 700x700";;
@@ -33,7 +33,7 @@ let remp_mat =
         done;
     done;;
 
-(*Déplace la case vide*)
+(*Déplace la case i j, attention à toujours utiliser sur la case vide*)
 let deplacer_case i j p =
     let temp = ref taquin.(i).(j) in
     match p with
@@ -765,8 +765,9 @@ res taille;;
 
 (*
 Commandes utiles
+cd Users/Jules/Documents/GitHub/Résolution\ Taquin\ Ocaml/ResolveTaquin/base/
 #load "graphics.cma";;
-#use "taquin.ml";; 
+#use "taquin.ml";;
 *)
 
 *)
