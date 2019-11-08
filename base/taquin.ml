@@ -176,28 +176,97 @@ let getposblack case=
     done;
   done;;
 
-
+(*Fonction qui place la case noire sous la case a traiter, a appeler après avoir vérifier que la case
+n'est pas sur le contour*)
 let get_under case=
   search case;
   getposblack 0;
-  if icase==ivide then
+  (*print des coordonnées de départ pour savoir si ça a bougé*)
+  print_int !icase;
+  print_int !jcase;
+  print_int !ivide;
+  print_int !jvide;
+  if !icase == !ivide then
   begin
-    (*déplacement à gauche puis en bas puis à droite*)
+    (*déplacement à gauche puis en bas puis à droite, fonctionne*)
+    for i=0 to !jvide-1 do
+      deplacer_case !ivide !jvide 2;
+      getposblack 0;
+      remp_graph taille;
+    done;
+    deplacer_case !ivide !jvide 1;
+    getposblack 0;
+    remp_graph taille;
+    for i=0 to !jcase do
+      deplacer_case !ivide !jvide 0;
+      getposblack 0;
+      remp_graph taille;
+    done;
   end
-  else if icase > ivide then
+
+  else if !icase < !ivide then
   begin
-    (*tester l'écart puis déplacer, créer fonction is_under*)
+    (*tester l'écart puis déplacer en haut si >1, sinon chercher dans quel sens partir, bug*)
+    if !ivide - !icase > 1 then
+    begin
+      for i=0 to !ivide - !icase -1 do
+        deplacer_case !ivide !jvide 3;
+        getposblack 0;
+        remp_graph taille;
+      done;
+      (*si noire à gauche de case*)
+      if !jcase - !jvide > 0 then
+      begin
+        for i=0 to !jcase - !jvide -1 do
+          deplacer_case !ivide !jvide 0;
+          getposblack 0;
+          remp_graph taille;
+        done;
+      end
+      (*si noire à droite de case*)
+      else if !jcase - !jvide < 0 then
+      begin
+        for i=0 to !jvide - !jcase -2 do
+          deplacer_case !ivide !jvide 2;
+          getposblack 0;
+          remp_graph taille;
+        done;
+      end
+    end
+    (*si directement ligne en dessous*)
+    else if !jcase - !jvide > 0 then
+    begin
+      for i=0 to !jcase - !jvide -1 do
+        deplacer_case !ivide !jvide 0;
+        getposblack 0;
+        remp_graph taille;
+      done;
+    end
+    (*si noire à droite de case*)
+    else if !jcase - !jvide < 0 then
+    begin
+      for i=0 to !jvide - !jcase -1 do
+        deplacer_case !ivide !jvide 2;
+        getposblack 0;
+        remp_graph taille;
+      done;
+    end
+
   end
-  else if icase < ivide then
+
+  else if !icase > !ivide then
   begin
     (*tester l'écart, que la case soit pas sur la dernière ligne puis déplacer*)
-  end
+  end;;
 
 
 
 
 remp_graph taille;;
 echange_case taille (50*taille);;
+get_under 1;
+
+
 
 
 
