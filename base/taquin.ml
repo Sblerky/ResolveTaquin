@@ -3,7 +3,7 @@ module R = Random;;
 module A = Array;;
 module U = Unix;;
 
-let taille = 4;;
+let taille = 7;;
 let div = 700/taille;;
 
 open_graph " 700x700";;
@@ -143,6 +143,65 @@ let echange_case n nb =
         done;
     done;
     remp_graph taille;;
+
+
+let icase = ref 0;; (* variable contenant le i de la case qu'on cherche a placer*)
+let jcase = ref 0;; (* variable contenant le j de la case qu'on cherche a placer*)
+let ivide = ref 0;; (* variable contenant le i de la case noire*)
+let jvide = ref 0;; (* variable contenant le j de la case noire*)
+let ligneactuelle = ref 0;; (* variable contenant l'indice de la ligne en cours de traitement*)
+
+(*Fonction qui remplit icase et jcase*)
+let search case=
+  for i=0 to taille-1 do
+    for j=0 to taille-1 do
+      if taquin.(i).(j)==case then
+      begin
+        icase:=i;
+        jcase:=j;
+      end
+    done;
+  done;;
+
+
+(*Fonction qui remplit ivide et jvide, prend un paramètre sinon s'éxécute toute seule*)
+let getposblack case=
+  for i=0 to taille-1 do
+    for j=0 to taille-1 do
+      if taquin.(i).(j)==0 then
+      begin
+        ivide:=i;
+        jvide:=j;
+      end
+    done;
+  done;;
+
+
+let get_under case=
+  search case;
+  getposblack 0;
+  if icase==ivide then
+  begin
+    (*déplacement à gauche puis en bas puis à droite*)
+  end
+  else if icase > ivide then
+  begin
+    (*tester l'écart puis déplacer, créer fonction is_under*)
+  end
+  else if icase < ivide then
+  begin
+    (*tester l'écart, que la case soit pas sur la dernière ligne puis déplacer*)
+  end
+
+
+
+
+remp_graph taille;;
+echange_case taille (50*taille);;
+
+
+
+
 (*
 
 let iv = ref 0;;
@@ -771,5 +830,3 @@ cd Users/Jules/Documents/GitHub/Résolution\ Taquin\ Ocaml/ResolveTaquin/base/
 *)
 
 *)
-remp_graph taille;;
-echange_case taille (50*taille);;
