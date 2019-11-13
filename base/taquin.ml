@@ -71,6 +71,7 @@ let remp_graph n =
                 end
         done;
     done;;
+    (*ignore (Graphics.read_key ());;*)
 
 
 (*Mélange le taquin*)
@@ -151,6 +152,8 @@ let ivide = ref 0;; (* variable contenant le i de la case noire*)
 let jvide = ref 0;; (* variable contenant le j de la case noire*)
 let ligneactuelle = ref 0;; (* variable contenant l'indice de la ligne en cours de traitement*)
 
+
+
 (*Fonction qui remplit icase et jcase*)
 let search case=
   for i=0 to taille-1 do
@@ -206,10 +209,10 @@ let get_under case=
 
   else if !icase < !ivide then
   begin
-    (*tester l'écart puis déplacer en haut si >1, sinon chercher dans quel sens partir, bug*)
+    (*tester l'écart puis déplacer en haut si >1, sinon chercher dans quel sens partir*)
     if !ivide - !icase > 1 then
     begin
-      for i=0 to !ivide - !icase -1 do
+      for i=0 to !ivide - !icase -2 do
         deplacer_case !ivide !jvide 3;
         getposblack 0;
         remp_graph taille;
@@ -226,7 +229,7 @@ let get_under case=
       (*si noire à droite de case*)
       else if !jcase - !jvide < 0 then
       begin
-        for i=0 to !jvide - !jcase -2 do
+        for i=0 to !jvide - !jcase -1 do
           deplacer_case !ivide !jvide 2;
           getposblack 0;
           remp_graph taille;
@@ -256,7 +259,30 @@ let get_under case=
 
   else if !icase > !ivide then
   begin
-    (*tester l'écart, que la case soit pas sur la dernière ligne puis déplacer*)
+    (*tester l'écart, puis déplacer en bas +1 puis horizontal*)
+    for i=0 to !icase - !ivide do
+      deplacer_case !ivide !jvide 1;
+      getposblack 0;
+      remp_graph taille;
+    done;
+    (*si noire à gauche de case*)
+    if !jcase - !jvide > 0 then
+    begin
+      for i=0 to !jcase - !jvide -1 do
+        deplacer_case !ivide !jvide 0;
+        getposblack 0;
+        remp_graph taille;
+      done;
+    end
+    (*si noire à droite de case*)
+    else if !jcase - !jvide < 0 then
+    begin
+      for i=0 to !jvide - !jcase -1 do
+        deplacer_case !ivide !jvide 2;
+        getposblack 0;
+        remp_graph taille;
+      done;
+    end
   end;;
 
 
