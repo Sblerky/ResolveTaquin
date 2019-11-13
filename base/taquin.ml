@@ -151,6 +151,7 @@ let jcase = ref 0;; (* variable contenant le j de la case qu'on cherche a placer
 let ivide = ref 0;; (* variable contenant le i de la case noire*)
 let jvide = ref 0;; (* variable contenant le j de la case noire*)
 let ligneactuelle = ref 0;; (* variable contenant l'indice de la ligne en cours de traitement*)
+let colonneactuelle = ref 0;; (* variable contenant l'indice de la colonne en cours de traitement*)
 
 
 
@@ -199,8 +200,9 @@ let get_under case=
     done;
     deplacer_case !ivide !jvide 1;
     getposblack 0;
+    search case;
     remp_graph taille;
-    for i=0 to !jcase do
+    for i=0 to !jcase-1 do
       deplacer_case !ivide !jvide 0;
       getposblack 0;
       remp_graph taille;
@@ -262,6 +264,7 @@ let get_under case=
     (*tester l'écart, puis déplacer en bas +1 puis horizontal*)
     for i=0 to !icase - !ivide do
       deplacer_case !ivide !jvide 1;
+      search case;
       getposblack 0;
       remp_graph taille;
     done;
@@ -285,12 +288,56 @@ let get_under case=
     end
   end;;
 
+(*Fonction qui place la case à traiter sur le contour si elle n'y est pas déjà*)
+let get_on_side case =
+  search case;
+  getposblack 0;
+  if !icase == 0 || !icase == taille-1 || !jcase == 0 || !jcase == taille-1 then
+  begin
+    (*placer la case vide sur le contour en bas
+     puis tester si case à traiter y est toujours et si oui aller à droite*)
+    for i=0 to (taille -1 - !ivide-1) do
+      deplacer_case !ivide !jvide 1;
+      search case;
+      getposblack 0;
+      remp_graph taille;
+    done;
+    if !icase == 0 || !icase == taille-1 || !jcase == 0 || !jcase == taille-1 then
+    begin
+      for i=0 to (taille -1 - !jvide-1) do
+        deplacer_case !ivide !jvide 0;
+        getposblack 0;
+        remp_graph taille;
+      done;
+    end
+    else (*remonter puis droite puis bas puis full droite*)
+    begin
+      deplacer_case !ivide !jvide 3;
+      getposblack 0;
+      deplacer_case !ivide !jvide 0;
+      getposblack 0;
+      deplacer_case !ivide !jvide 1;
+      getposblack 0;
+      remp_graph taille;
+      for i=0 to (taille -1 - !jvide-1) do
+        deplacer_case !ivide !jvide 0;
+        getposblack 0;
+        remp_graph taille;
+      done;
+    end
+  end
+  else
+  begin
+    get_under case;
+    (*rotate + case vide sur le contour*)
+  end;;
+
 
 
 
 remp_graph taille;;
 echange_case taille (50*taille);;
-get_under 1;
+get_on_side 1;
 
 
 
