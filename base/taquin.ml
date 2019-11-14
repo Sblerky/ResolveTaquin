@@ -148,6 +148,8 @@ let echange_case n nb =
 
 let icase = ref 0;; (* variable contenant le i de la case qu'on cherche a placer*)
 let jcase = ref 0;; (* variable contenant le j de la case qu'on cherche a placer*)
+let icaseres = ref 0;; (* variable contenant le i final de la case qu'on cherche a placer*)
+let jcaseres = ref 0;; (* variable contenant le j final de la case qu'on cherche a placer*)
 let ivide = ref 0;; (* variable contenant le i de la case noire*)
 let jvide = ref 0;; (* variable contenant le j de la case noire*)
 let ligneactuelle = ref 0;; (* variable contenant l'indice de la ligne en cours de traitement*)
@@ -167,6 +169,16 @@ let search case=
     done;
   done;;
 
+let search_resolve case=
+  for i=0 to taille-1 do
+    for j=0 to taille-1 do
+      if taquin_init.(i).(j)==case then
+      begin
+        icaseres:=i;
+        jcaseres:=j;
+      end
+    done;
+  done;;
 
 (*Fonction qui remplit ivide et jvide, prend un paramètre sinon s'éxécute toute seule*)
 let getposblack case=
@@ -180,16 +192,13 @@ let getposblack case=
     done;
   done;;
 
+
+
 (*Fonction qui place la case noire sous la case a traiter, a appeler après avoir vérifier que la case
 n'est pas sur le contour*)
 let get_under case=
   search case;
   getposblack 0;
-  (*print des coordonnées de départ pour savoir si ça a bougé*)
-  print_int !icase;
-  print_int !jcase;
-  print_int !ivide;
-  print_int !jvide;
   if !icase == !ivide then
   begin
     (*déplacement à gauche puis en bas puis à droite, fonctionne*)
@@ -288,11 +297,103 @@ let get_under case=
     end
   end;;
 
-(*Fonction qui place la case à traiter sur le contour si elle n'y est pas déjà*)
+(*rotate sur la droite dans le sens anti-horaire en prenant en compte ligne actuelle + case vide sur le contour*)
+let rotate case =
+  (*faire des tours pour la placer sue le côté*)
+  while !icase != !ligneactuelle && !icase != taille-1 && !jcase != !colonneactuelle && !jcase != taille-1 do
+    getposblack 0;
+    for i=0 to (taille -1 - !jvide-1) do
+      deplacer_case !ivide !jvide 0;
+      getposblack 0;
+      remp_graph taille;
+    done;
+    deplacer_case !ivide !jvide 3;
+    getposblack 0;
+    for i=0 to (taille -2) do
+      deplacer_case !ivide !jvide 2;
+      getposblack 0;
+      remp_graph taille;
+    done;
+    deplacer_case !ivide !jvide 1;
+    getposblack 0;
+    remp_graph taille;
+    search case;
+  done;;
+
+(*fonction a appeler dans les cas particuliers de get_on_side*)
+let get_on_side_debug case=
+  search case;
+  getposblack 0;
+
+  (*si la case est en bas à gauche*)
+  if !icase == taille-1 then
+  begin
+    (*on met la case noire tout en bas*)
+    for i=0 to (taille -1 - !ivide-1) do
+      deplacer_case !ivide !jvide 1;
+      search case;
+      getposblack 0;
+      remp_graph taille;
+    done;
+    search case;
+
+    (*genre de rotate pour la mettre dans le carré (duplication de code super)*)
+
+    while !jcase <= (!colonneactuelle+1) do
+      getposblack 0;
+      for i=0 to (taille -1 - !jvide-1) do
+        deplacer_case !ivide !jvide 0;
+        getposblack 0;
+        remp_graph taille;
+      done;
+      deplacer_case !ivide !jvide 3;
+      getposblack 0;
+      for i=0 to (taille -2) do
+        deplacer_case !ivide !jvide 2;
+        getposblack 0;
+        remp_graph taille;
+      done;
+      deplacer_case !ivide !jvide 1;
+      getposblack 0;
+      remp_graph taille;
+      search case;
+    done;
+    (*quand c'est fini on remet la case noire à sa place*)
+    for i=0 to (taille -1 - !jvide-1) do
+      deplacer_case !ivide !jvide 0;
+      getposblack 0;
+      remp_graph taille;
+    done;
+    print_string "\n2 boucles passées\n";
+    search case;
+    print_int !icase;
+    print_int !jcase;
+    rotate case;
+
+
+
+  end
+  (*sinon traitement normal*)
+  else begin
+    get_under case;
+    rotate case;
+    for i=0 to (taille -1 - !jvide-1) do
+      deplacer_case !ivide !jvide 0;
+      getposblack 0;
+      remp_graph taille;
+    done;
+  end;;
+
+(*Fonction qui place la case à traiter sur le contour défini par les lignes/col déjà traitées
+ si elle n'y est pas déjà*)
 let get_on_side case =
   search case;
   getposblack 0;
-  if !icase == 0 || !icase == taille-1 || !jcase == 0 || !jcase == taille-1 then
+  print_int !icase;
+  print_int !jcase;
+  if (!icase == !ligneactuelle || !icase == taille-1 || !jcase == !colonneactuelle || !jcase == taille-1)
+  && (!icase != taille-1 || !jcase >= !colonneactuelle)
+  then
   begin
     (*placer la case vide sur le contour en bas
      puis tester si case à traiter y est toujours et si oui aller à droite*)
@@ -302,42 +403,77 @@ let get_on_side case =
       getposblack 0;
       remp_graph taille;
     done;
-    if !icase == 0 || !icase == taille-1 || !jcase == 0 || !jcase == taille-1 then
-    begin
-      for i=0 to (taille -1 - !jvide-1) do
-        deplacer_case !ivide !jvide 0;
-        getposblack 0;
-        remp_graph taille;
-      done;
+    search case;
+    print_int !icase;
+    print_int !jcase;
+    if (!icase == !ligneactuelle || !icase == taille-1 || !jcase == !colonneactuelle || !jcase == taille-1)
+    && (!icase != taille-1 || !jcase > !colonneactuelle)
+    then
+      begin
+        for i=0 to (taille -1 - !jvide-1) do
+          deplacer_case !ivide !jvide 0;
+          getposblack 0;
+          remp_graph taille;
+        done;
     end
-    else (*remonter puis droite puis bas puis full droite*)
+    else (*autre traitement*)
     begin
-      deplacer_case !ivide !jvide 3;
-      getposblack 0;
+      get_on_side_debug case;
+    end
+  end
+
+  else
+  begin
+    get_on_side_debug case;
+  end;;
+
+(*foncton qui place la case en question *)
+let place case =
+  get_on_side case;
+  search_resolve case;
+  (*juste un rotate sur tout le bord pour la placer*)
+  while !icase != !icaseres || !jcase != !jcaseres do
+    getposblack 0;
+    for i=0 to (taille -1 - !jvide-1) do
       deplacer_case !ivide !jvide 0;
       getposblack 0;
+      remp_graph taille;
+    done;
+    for i=0 to (!ivide-1 - !ligneactuelle) do
+      deplacer_case !ivide !jvide 3;
+      getposblack 0;
+      remp_graph taille;
+    done;
+    for i=0 to (taille -2 - !colonneactuelle) do
+      deplacer_case !ivide !jvide 2;
+      getposblack 0;
+      remp_graph taille;
+    done;
+    for i=0 to (taille -2) do
       deplacer_case !ivide !jvide 1;
       getposblack 0;
       remp_graph taille;
-      for i=0 to (taille -1 - !jvide-1) do
-        deplacer_case !ivide !jvide 0;
-        getposblack 0;
-        remp_graph taille;
-      done;
-    end
-  end
-  else
-  begin
-    get_under case;
-    (*rotate + case vide sur le contour*)
-  end;;
+    done;
+    search case;
+  done;;
+
+
+
 
 
 
 
 remp_graph taille;;
 echange_case taille (50*taille);;
-get_on_side 1;
+place 1;;
+colonneactuelle:=1;;
+place 2;;
+colonneactuelle:=2;;
+place 3;;
+colonneactuelle:=3;;
+place 4;;
+colonneactuelle:=4;;
+place 5;;
 
 
 
