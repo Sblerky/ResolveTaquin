@@ -10,6 +10,7 @@ open_graph " 700x700";;
 let taquin = A.make_matrix taille taille 0;;
 let taquin_init = A.make_matrix taille taille 0;;
 
+
 let num_case n x y =
     moveto x y;
     set_font "-*-fixed-medium-r-semicondensed--30-*-*-*-*-*-iso8859-1";
@@ -72,7 +73,7 @@ let remp_graph n =
         done;
     done;;
     (*ignore (Graphics.read_key ());;*)
-
+    
 
 (*Mélange le taquin*)
 let echange_case n nb =
@@ -297,6 +298,8 @@ let get_under case=
     end
   end;;
 
+  
+
 (*rotate sur la droite dans le sens anti-horaire en prenant en compte ligne actuelle + case vide sur le contour*)
 let rotate case =
   (*faire des tours pour la placer sue le côté*)
@@ -369,9 +372,6 @@ let get_on_side_debug case=
     print_int !icase;
     print_int !jcase;
     rotate case;
-
-
-
   end
   (*sinon traitement normal*)
   else begin
@@ -403,9 +403,11 @@ let get_on_side case =
       getposblack 0;
       remp_graph taille;
     done;
+
     search case;
     print_int !icase;
     print_int !jcase;
+
     if (!icase == !ligneactuelle || !icase == taille-1 || !jcase == !colonneactuelle || !jcase == taille-1)
     && (!icase != taille-1 || !jcase > !colonneactuelle)
     then
@@ -427,8 +429,55 @@ let get_on_side case =
     get_on_side_debug case;
   end;;
 
-(*foncton qui place la case en question *)
-let place case =
+(*Place la case voulu en haut à droite, on l'utilise après place_prepa_fin*)
+let place_coin_haut case =
+if(!icase == !ligneactuelle && !jcase == taille - 1) then
+begin
+    (*gauche haut haut droite bas*)
+    deplacer_case !ivide !jvide 2;
+    getposblack 0;
+    remp_graph taille;
+    deplacer_case !ivide !jvide 3;
+    getposblack 0;
+    remp_graph taille;
+    deplacer_case !ivide !jvide 3;
+    getposblack 0;
+    remp_graph taille;
+    deplacer_case !ivide !jvide 0;
+    getposblack 0;
+    remp_graph taille;
+    deplacer_case !ivide !jvide 1;
+    getposblack 0;
+    remp_graph taille;
+end;;
+
+(*Debug pour remettre les cases de fin à l'endroit voulu sinon la ligne est décalé*)
+let placeFin_debug case = 
+    search case;
+    search_resolve case;
+    if(!icase == !icaseres && !jcase == !jcaseres) then begin
+        get_under case;
+        (*haut , gauche ou droite, bas*)
+        deplacer_case !ivide !jvide 3;
+        getposblack 0;
+        remp_graph taille;
+        if(!jvide != taille-1) then begin (*Si c'est le 6 qui est mal placé*)
+            deplacer_case !ivide !jvide 0;
+            getposblack 0;
+            remp_graph taille;
+        end 
+        else begin (*Sinon si c'est le 7*)
+            deplacer_case !ivide !jvide 2;
+            getposblack 0;
+            remp_graph taille;
+        end;
+        deplacer_case !ivide !jvide 1;
+        getposblack 0;
+        remp_graph taille;
+    end;;
+
+(*fonction qui place la case en question *)
+let place case etape =
   get_on_side case;
   search_resolve case;
   (*juste un rotate sur tout le bord pour la placer*)
@@ -449,7 +498,7 @@ let place case =
       getposblack 0;
       remp_graph taille;
     done;
-    for i=0 to (taille -2) do
+    for i=0 to (taille - etape) do   (*faut incrémenter etape a chaque fois qu'on change de ligne (avant cétait toujours 2)*)
       deplacer_case !ivide !jvide 1;
       getposblack 0;
       remp_graph taille;
@@ -457,6 +506,39 @@ let place case =
     search case;
   done;;
 
+(*fonction qui place les 2 dernières cases de la ligne*)
+let place_prepa_fin case etape=
+    search case;
+    search_resolve case;
+    get_on_side case;
+    (*Même chose sauf qu'on vérifie si la case est au bon endroit sinon ça boucle pour rien*)
+    while (!icase != !ligneactuelle || !jcase != taille - 1) && (!icase != !ligneactuelle -1 || !jcase != taille - 1) && (!icase != !ligneactuelle -1 || !jcase != taille - 2) do
+        getposblack 0;
+        for i=0 to (taille -1 - !jvide-1) do
+            deplacer_case !ivide !jvide 0;
+            getposblack 0;
+            remp_graph taille;
+        done;
+        for i=0 to (!ivide-1 - !ligneactuelle) do
+            deplacer_case !ivide !jvide 3;
+            getposblack 0;
+            remp_graph taille; 
+        done;
+        if(!icase != !ligneactuelle || !jcase != taille - 1) then
+        for i=0 to (taille -2 - !colonneactuelle) do     
+            deplacer_case !ivide !jvide 2;
+            getposblack 0;
+            remp_graph taille;
+        done;
+        for i=0 to (taille - etape) do
+            deplacer_case !ivide !jvide 1;
+            getposblack 0;
+            remp_graph taille;
+        done;
+        search case;
+    done;
+    (*On se place en dessous et on place ensuite la case dans le coin en haut a droite*)
+    get_under case;;
 
 
 
@@ -465,15 +547,109 @@ let place case =
 
 remp_graph taille;;
 echange_case taille (50*taille);;
-place 1;;
+let etape = ref 2;;
+
+(*Façon dégueulasse*)
+
+place 1 2;;
 colonneactuelle:=1;;
-place 2;;
+place 2 2;;
 colonneactuelle:=2;;
-place 3;;
+place 3 2;;
 colonneactuelle:=3;;
-place 4;;
+place 4 2;;
 colonneactuelle:=4;;
-place 5;;
+place 5 2;;
+
+colonneactuelle:=0;;
+ligneactuelle:=1;;
+(*Appel du débug avant d'appeler les 2 autres fct*)
+placeFin_debug 6;;
+placeFin_debug 7;;
+place_prepa_fin 6 3;;
+place_coin_haut 6;;
+place_prepa_fin 7 3;;
+place_coin_haut 7;;
+
+
+
+place 8 3;;
+colonneactuelle:=1;;
+place 9 3;;
+colonneactuelle:=2;;
+place 10 3;;
+colonneactuelle:=3;;
+place 11 3;;
+colonneactuelle:=4;;
+place 12 3;;
+
+colonneactuelle:=0;;
+ligneactuelle:=2;;
+placeFin_debug 13;;
+placeFin_debug 14;;
+place_prepa_fin 13 4;;
+place_coin_haut 13;;
+place_prepa_fin 14 4;;
+place_coin_haut 14;;
+
+place 15 4;;
+colonneactuelle:=1;;
+place 16 4;;
+colonneactuelle:=2;;
+place 17 4;;
+colonneactuelle:=3;;
+place 18 4;;
+colonneactuelle:=4;;
+place 19 4;;
+
+colonneactuelle:=0;;
+ligneactuelle:=3;;
+placeFin_debug 20;;
+placeFin_debug 21;;
+place_prepa_fin 20 5;;
+place_coin_haut 20;;
+place_prepa_fin 21 5;;
+place_coin_haut 21;;
+
+place 22 5;;
+colonneactuelle:=1;;
+place 23 5;;
+colonneactuelle:=2;;
+place 24 5;;
+colonneactuelle:=3;;
+place 25 5;;
+colonneactuelle:=4;;
+place 26 5;;
+
+colonneactuelle:=0;;
+ligneactuelle:=4;;
+placeFin_debug 27;;
+placeFin_debug 28;;
+place_prepa_fin 27 6;;
+place_coin_haut 27;;
+place_prepa_fin 28 6;;
+place_coin_haut 28;;
+
+place 29 6;;
+colonneactuelle:=1;;
+place 30 6;;
+colonneactuelle:=2;;
+place 31 6;;
+colonneactuelle:=3;;
+place 32 6;;
+colonneactuelle:=4;;
+place 33 6;;
+
+colonneactuelle:=0;;
+ligneactuelle:=5;;
+placeFin_debug 34;;
+placeFin_debug 35;;
+place_prepa_fin 34 7;;
+place_coin_haut 34;;
+place_prepa_fin 35 7;;
+place_coin_haut 35;;
+    
+
 
 
 
@@ -481,6 +657,24 @@ place 5;;
 
 
 (*
+
+(*test pour l'automatisation mais pas eu le temps de finir
+for i=1 to 7 do  
+
+    place i !etape;
+    if !colonneactuelle <= 4 then begin
+        colonneactuelle := !colonneactuelle + 1;
+    end 
+    else begin 
+        colonneactuelle := 0;
+    end;
+    
+    if i >=6 && i<= 12 then begin 
+            etape = 3;
+            ligneactuelle := 1;
+    end;
+done;
+*)
 
 let iv = ref 0;;
 let jv = ref 0;;
