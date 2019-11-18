@@ -3,7 +3,7 @@ module R = Random;;
 module A = Array;;
 module U = Unix;;
 
-let taille = 5;;
+let taille = 6;;
 let div = 700/taille;;
 
 open_graph " 700x700";;
@@ -593,17 +593,20 @@ let prepare_col case=
   search case;
   (*pour éviter que la case  devienne inaccessible*)
   while !icase == (!icaseres+1) && !jcase == !jcaseres do
-    for i=0 to (taille-3 - !ligneactuelle) do
+  remp_graph_pause taille;
+    if !ivide==taille-1 then
+    begin
       print_string "dep haut\n";
       deplacer_case !ivide !jvide 3;
       getposblack 0;
-      remp_graph taille;
-    done;
+
+    end;
+    remp_graph_pause taille;
     print_string "dep 5\n";
     for i=0 to (taille-2 - !colonneactuelle) do
       deplacer_case !ivide !jvide 2;
       getposblack 0;
-      remp_graph taille;
+      remp_graph_pause taille;
     done;
     print_int !ivide;
     print_int !jvide;
