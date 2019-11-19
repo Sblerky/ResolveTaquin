@@ -3,7 +3,7 @@ module R = Random;;
 module A = Array;;
 module U = Unix;;
 
-let taille = 6;;
+let taille = 5;;
 let div = 700/taille;;
 
 open_graph " 700x700";;
@@ -511,7 +511,7 @@ let place case etape =
       getposblack 0;
       remp_graph taille;
     done;
-    for i=0 to (taille - etape) do   (*faut incrémenter etape a chaque fois qu'on change de ligne (avant cétait toujours 2)*)
+    for i=0 to (taille - 2 - !ligneactuelle) do   (*faut incrémenter etape a chaque fois qu'on change de ligne (avant cétait toujours 2)*)
       deplacer_case !ivide !jvide 1;
       getposblack 0;
       remp_graph taille;
@@ -543,7 +543,7 @@ let place_prepa_fin case etape=
             getposblack 0;
             remp_graph taille;
         done;
-        for i=0 to (taille - etape) do
+        for i=0 to (taille - 2 - !ligneactuelle) do
             deplacer_case !ivide !jvide 1;
             getposblack 0;
             remp_graph taille;
@@ -593,7 +593,6 @@ let prepare_col case=
   search case;
   (*pour éviter que la case  devienne inaccessible*)
   while !icase == (!icaseres+1) && !jcase == !jcaseres do
-  remp_graph_pause taille;
     if !ivide==taille-1 then
     begin
       print_string "dep haut\n";
@@ -601,17 +600,13 @@ let prepare_col case=
       getposblack 0;
 
     end;
-    remp_graph_pause taille;
+    remp_graph taille;
     print_string "dep 5\n";
     for i=0 to (taille-2 - !colonneactuelle) do
       deplacer_case !ivide !jvide 2;
       getposblack 0;
-      remp_graph_pause taille;
+      remp_graph taille;
     done;
-    print_int !ivide;
-    print_int !jvide;
-    print_string "\n";
-    print_int !ligneactuelle;
     print_string "dep 6\n";
     deplacer_case !ivide !jvide 1;
     getposblack 0;
@@ -727,7 +722,23 @@ let prepare_col case=
 let last_piece case=
  search_resolve case;
  search case;
+ getposblack 0;
  etape :=0;
+ for i=0 to (taille-2 - !jvide) do
+   deplacer_case !ivide !jvide 0;
+   getposblack 0;
+   remp_graph taille;
+ done;
+ for i=0 to (taille-2 - !ivide) do
+   deplacer_case !ivide !jvide 1;
+   getposblack 0;
+   remp_graph taille;
+ done;
+ for i=0 to (taille-2 - !jvide) do
+   deplacer_case !ivide !jvide !etape;
+   getposblack 0;
+   remp_graph taille;
+ done;
  while !icase != !icaseres || !jcase != !jcaseres do
 
   if !etape==4 then
@@ -787,10 +798,15 @@ let resolve_taquin x=
     etape := !etape+1;
     (*placement dernières cases*)
     placeFin_debug !caseactuelle;
+
     placeFin_debug (!caseactuelle+1);
+
     place_prepa_fin !caseactuelle !etape;
+
     place_coin_haut !caseactuelle;
+
     place_prepa_fin (!caseactuelle+1) !etape;
+
     place_coin_haut (!caseactuelle+1);
     caseactuelle := !caseactuelle+2;
   done;
