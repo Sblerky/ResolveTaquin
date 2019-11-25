@@ -228,6 +228,11 @@ let getposblack case=
     done;
   done;;
 
+let deplace direction =
+  deplacer_case !ivide !jvide direction;
+  getposblack 0;
+  remp_graph taille;;
+
 
 
 (*Fonction qui place la case noire sous la case a traiter, a appeler après avoir vérifier que la case
@@ -239,18 +244,12 @@ let get_under case=
   begin
     (*déplacement à gauche puis en bas puis à droite, fonctionne*)
     for i=0 to !jvide-1 do
-      deplacer_case !ivide !jvide 2;
-      getposblack 0;
-      remp_graph taille;
+      deplace 2;
     done;
-    deplacer_case !ivide !jvide 1;
-    getposblack 0;
+    deplace 1;
     search case;
-    remp_graph taille;
     for i=0 to !jcase-1 do
-      deplacer_case !ivide !jvide 0;
-      getposblack 0;
-      remp_graph taille;
+      deplace 0;
     done;
   end
 
@@ -260,26 +259,20 @@ let get_under case=
     if !ivide - !icase > 1 then
     begin
       for i=0 to !ivide - !icase -2 do
-        deplacer_case !ivide !jvide 3;
-        getposblack 0;
-        remp_graph taille;
+        deplace 3;
       done;
       (*si noire à gauche de case*)
       if !jcase - !jvide > 0 then
       begin
         for i=0 to !jcase - !jvide -1 do
-          deplacer_case !ivide !jvide 0;
-          getposblack 0;
-          remp_graph taille;
+          deplace 0;
         done;
       end
       (*si noire à droite de case*)
       else if !jcase - !jvide < 0 then
       begin
         for i=0 to !jvide - !jcase -1 do
-          deplacer_case !ivide !jvide 2;
-          getposblack 0;
-          remp_graph taille;
+          deplace 2;
         done;
       end
     end
@@ -287,18 +280,14 @@ let get_under case=
     else if !jcase - !jvide > 0 then
     begin
       for i=0 to !jcase - !jvide -1 do
-        deplacer_case !ivide !jvide 0;
-        getposblack 0;
-        remp_graph taille;
+        deplace 0;
       done;
     end
     (*si noire à droite de case*)
     else if !jcase - !jvide < 0 then
     begin
       for i=0 to !jvide - !jcase -1 do
-        deplacer_case !ivide !jvide 2;
-        getposblack 0;
-        remp_graph taille;
+        deplace 2;
       done;
     end
 
@@ -308,27 +297,21 @@ let get_under case=
   begin
     (*tester l'écart, puis déplacer en bas +1 puis horizontal*)
     for i=0 to !icase - !ivide do
-      deplacer_case !ivide !jvide 1;
+      deplace 1;
       search case;
-      getposblack 0;
-      remp_graph taille;
     done;
     (*si noire à gauche de case*)
     if !jcase - !jvide > 0 then
     begin
       for i=0 to !jcase - !jvide -1 do
-        deplacer_case !ivide !jvide 0;
-        getposblack 0;
-        remp_graph taille;
+        deplace 0;
       done;
     end
     (*si noire à droite de case*)
     else if !jcase - !jvide < 0 then
     begin
       for i=0 to !jvide - !jcase -1 do
-        deplacer_case !ivide !jvide 2;
-        getposblack 0;
-        remp_graph taille;
+        deplace 2;
       done;
     end
   end;;
@@ -344,21 +327,13 @@ let rotate case =
       print_int (!ivide - !icase);
       getposblack 0;
       for i=0 to (taille -1 - !jvide-1) do
-        deplacer_case !ivide !jvide 0;
-        getposblack 0;
-        remp_graph taille;
+        deplace 0;
       done;
-        deplacer_case !ivide !jvide 3;
-        getposblack 0;
-        remp_graph taille;
+        deplace 3;
       for i=0 to (taille -2) do
-        deplacer_case !ivide !jvide 2;
-        getposblack 0;
-        remp_graph taille;
+        deplace 2;
       done;
-        deplacer_case !ivide !jvide 1;
-        getposblack 0;
-        remp_graph taille;
+        deplace 1;
       search case;
     done;;
 
@@ -369,24 +344,16 @@ let rotate2 case =
       print_int (!ivide - !icase);
       getposblack 0;
       for i=0 to taille -1 - !jvide-1 do
-        deplacer_case !ivide !jvide 0;
-        getposblack 0;
-        remp_graph taille;
+        deplace 0;
       done;
       for i=0 to 1 do
-        deplacer_case !ivide !jvide 3;
-        getposblack 0;
-        remp_graph taille;
+        deplace 3;
       done;
       for i=0 to taille -2 do
-        deplacer_case !ivide !jvide 2;
-        getposblack 0;
-        remp_graph taille;
+        deplace 2;
       done;
       for i=0 to 1 do
-        deplacer_case !ivide !jvide 1;
-        getposblack 0;
-        remp_graph taille;
+        deplace 1;
       done;
       search case;
     done;;
@@ -402,10 +369,8 @@ let get_on_side_debug case=
   begin
     (*on met la case noire tout en bas*)
     for i=0 to (taille -1 - !ivide-1) do
-      deplacer_case !ivide !jvide 1;
+      deplace 1;
       search case;
-      getposblack 0;
-      remp_graph taille;
     done;
     search case;
 
@@ -414,27 +379,18 @@ let get_on_side_debug case=
     while !jcase <= (!colonneactuelle+1) do
       getposblack 0;
       for i=0 to (taille -1 - !jvide-1) do
-        deplacer_case !ivide !jvide 0;
-        getposblack 0;
-        remp_graph taille;
+        deplace 0;
       done;
-      deplacer_case !ivide !jvide 3;
-      getposblack 0;
+      deplace 3;
       for i=0 to (taille -2) do
-        deplacer_case !ivide !jvide 2;
-        getposblack 0;
-        remp_graph taille;
+        deplace 2;
       done;
-      deplacer_case !ivide !jvide 1;
-      getposblack 0;
-      remp_graph taille;
+      deplace 1;
       search case;
     done;
     (*quand c'est fini on remet la case noire à sa place*)
     for i=0 to (taille -1 - !jvide-1) do
-      deplacer_case !ivide !jvide 0;
-      getposblack 0;
-      remp_graph taille;
+      deplace 0;
     done;
     search case;
     rotate case;
@@ -449,9 +405,7 @@ let get_on_side_debug case=
       rotate2 case;
     end;
     for i=0 to (taille -1 - !jvide-1) do
-      deplacer_case !ivide !jvide 0;
-      getposblack 0;
-      remp_graph taille;
+      deplace 0;
     done;
   end;;
 
@@ -467,10 +421,8 @@ let get_on_side case =
     (*placer la case vide sur le contour en bas
      puis tester si case à traiter y est toujours et si oui aller à droite*)
     for i=0 to (taille -1 - !ivide-1) do
-      deplacer_case !ivide !jvide 1;
+      deplace 1;
       search case;
-      getposblack 0;
-      remp_graph taille;
     done;
     search case;
 
@@ -479,9 +431,7 @@ let get_on_side case =
     then
       begin
         for i=0 to (taille -1 - !jvide-1) do
-          deplacer_case !ivide !jvide 0;
-          getposblack 0;
-          remp_graph taille;
+          deplace 0;
         done;
     end
     else (*autre traitement*)
@@ -499,24 +449,16 @@ let get_on_side case =
   let tourne case =
     getposblack 0;
       for i=0 to (taille -1 - !jvide-1) do
-        deplacer_case !ivide !jvide 0;
-        getposblack 0;
-        remp_graph taille;
+        deplace 0;
       done;
       for i=0 to (!ivide-1 - !ligneactuelle) do
-        deplacer_case !ivide !jvide 3;
-        getposblack 0;
-        remp_graph taille;
+        deplace 3;
       done;
       for i=0 to (taille -2 - !colonneactuelle) do
-        deplacer_case !ivide !jvide 2;
-        getposblack 0;
-        remp_graph taille;
+        deplace 2;
       done;
       for i=0 to (taille - 2 - !ligneactuelle) do
-        deplacer_case !ivide !jvide 1;
-        getposblack 0;
-        remp_graph taille;
+        deplace 1;
       done;
       search case;;
 
@@ -525,21 +467,11 @@ let place_coin_haut case =
 if(!icase == !ligneactuelle && !jcase == taille - 1) then
 begin
     (*gauche haut haut droite bas*)
-    deplacer_case !ivide !jvide 2;
-    getposblack 0;
-    remp_graph taille;
-    deplacer_case !ivide !jvide 3;
-    getposblack 0;
-    remp_graph taille;
-    deplacer_case !ivide !jvide 3;
-    getposblack 0;
-    remp_graph taille;
-    deplacer_case !ivide !jvide 0;
-    getposblack 0;
-    remp_graph taille;
-    deplacer_case !ivide !jvide 1;
-    getposblack 0;
-    remp_graph taille;
+    deplace 2;
+    deplace 3;
+    deplace 3;
+    deplace 0;
+    deplace 1;
 end;;
 
 (*Debug pour remettre les cases de fin à l'endroit voulu sinon la ligne est décalé*)
@@ -549,43 +481,25 @@ let placeFin_debug case =
     if(!icase == !icaseres && !jcase == !jcaseres) then begin
         get_under case;
         (*haut , gauche ou droite, bas*)
-        deplacer_case !ivide !jvide 3;
-        getposblack 0;
-        remp_graph taille;
+        deplace 3;
         if(!jvide != taille-1) then begin (*Si c'est le 6 qui est mal placé*)
-            deplacer_case !ivide !jvide 0;
-            getposblack 0;
-            remp_graph taille;
+            deplace 0;
         end
         else begin (*Sinon si c'est le 7*)
-            deplacer_case !ivide !jvide 2;
-            getposblack 0;
-            remp_graph taille;
+            deplace 2;
         end;
-        deplacer_case !ivide !jvide 1;
-        getposblack 0;
-        remp_graph taille;
+        deplace 1;
 
         get_under case;
-        deplacer_case !ivide !jvide 3;
-        getposblack 0;
-        remp_graph taille;
+        deplace 3;
     end;;
 
     let placeFin_debug2 case =
       get_under (case+1);
-      deplacer_case !ivide !jvide 3;
-      getposblack 0;
-      remp_graph taille;
-      deplacer_case !ivide !jvide 0;
-      getposblack 0;
-      remp_graph taille;
-      deplacer_case !ivide !jvide 1;
-      getposblack 0;
-      remp_graph taille;
-      deplacer_case !ivide !jvide 2;
-      getposblack 0;
-      remp_graph taille;
+      deplace 3;
+      deplace 0;
+      deplace 1;
+      deplace 2;
       placeFin_debug case;
       placeFin_debug (case+1);;
 
@@ -622,28 +536,16 @@ let prepare_first case=
   getposblack 0;
   (*tant que la case est pas la ou elle doit être on fait le tour*)
   while !icase != !icaseres || !jcase != !jcaseres do
-    print_string "dep 1\n";
     for i=0 to (taille-2 - !colonneactuelle) do
-      deplacer_case !ivide !jvide 2;
-      getposblack 0;
-      remp_graph taille;
+      deplace 2;
     done;
-    print_string "dep 2\n";
     for i=0 to (taille - 2 - !ivide) do
-      deplacer_case !ivide !jvide 1;
-      getposblack 0;
-      remp_graph taille;
+      deplace 1;
     done;
-    print_string "dep 3\n";
     for i=0 to (taille-2 - !jvide) do
-      deplacer_case !ivide !jvide 0;
-      getposblack 0;
-      remp_graph taille;
+      deplace 0;
     done;
-    print_string "dep 4\n";
-    deplacer_case !ivide !jvide 3;
-    getposblack 0;
-    remp_graph taille;
+    deplace 3;
 
     search (case+taille);
   done;;
@@ -657,128 +559,71 @@ let prepare_col case=
   while !icase == (!icaseres+1) && !jcase == !jcaseres do
     if !ivide==taille-1 then
     begin
-      print_string "dep haut\n";
-      deplacer_case !ivide !jvide 3;
-      getposblack 0;
+      deplace 3;
 
     end;
     remp_graph taille;
-    print_string "dep 5\n";
     for i=0 to (taille-2 - !colonneactuelle) do
-      deplacer_case !ivide !jvide 2;
-      getposblack 0;
-      remp_graph taille;
+      deplace 2;
     done;
-    print_string "dep 6\n";
-    deplacer_case !ivide !jvide 1;
-    getposblack 0;
-    remp_graph taille;
+    deplace 1;
 
-    print_string "dep 7\n";
-    deplacer_case !ivide !jvide 0;
-    getposblack 0;
-    remp_graph taille;
+    deplace 0;
 
-    print_string "dep 8\n";
-    deplacer_case !ivide !jvide 3;
-    getposblack 0;
-    remp_graph taille;
+    deplace 3;
 
-    print_string "dep 9\n";
-    deplacer_case !ivide !jvide 0;
-    getposblack 0;
-    remp_graph taille;
+    deplace 0;
 
-    print_string "dep 10\n";
-    deplacer_case !ivide !jvide 1;
-    getposblack 0;
-    remp_graph taille;
+    deplace 1;
 
     for i=0 to (taille-2 - !jvide) do
-      deplacer_case !ivide !jvide 0;
-      getposblack 0;
-      remp_graph taille;
+      deplace 0;
     done;
 
     prepare_first case;
     search (case+7);
   done;
 
-  print_string "dep 11\n";
   for i=0 to (taille - 2 - !ivide) do
-    deplacer_case !ivide !jvide 1;
-    getposblack 0;
-    remp_graph taille;
+    deplace 1;
   done;
 
-  print_string "dep 12\n";
   for i=0 to (taille-2 - !jvide) do
-    deplacer_case !ivide !jvide 0;
-    getposblack 0;
-    remp_graph taille;
+    deplace 0;
   done;
 
   search case;
 
   while !icase != !icaseres || !jcase != (!jcaseres+1) do
-    print_string "dep 13\n";
     for i=0 to (taille-2 - (!colonneactuelle+1)) do
-      deplacer_case !ivide !jvide 2;
-      getposblack 0;
-      remp_graph taille;
+      deplace 2;
     done;
-    print_string "dep 14\n";
     for i=0 to (taille - 2 - !ivide) do
-      deplacer_case !ivide !jvide 1;
-      getposblack 0;
-      remp_graph taille;
+      deplace 1;
     done;
-    print_string "dep 15\n";
     for i=0 to (taille-2 - !jvide) do
-      deplacer_case !ivide !jvide 0;
-      getposblack 0;
-      remp_graph taille;
+      deplace 0;
     done;
-    print_string "dep 16\n";
-    deplacer_case !ivide !jvide 3;
-    getposblack 0;
-    remp_graph taille;
+    deplace 3;
 
     search case;
   done;
-  print_string "dep 17\n";
   for i=0 to (taille - 2 - !ivide) do
-    deplacer_case !ivide !jvide 1;
-    getposblack 0;
-    remp_graph taille;
+    deplace 1;
   done;
-  print_string "dep 18\n";
   for i=0 to (taille-2 - !colonneactuelle) do
-    deplacer_case !ivide !jvide 2;
-    getposblack 0;
-    remp_graph taille;
+    deplace 2;
   done;
 
-  print_string "dep 19\n";
-  deplacer_case !ivide !jvide 3;
-  getposblack 0;
-  remp_graph taille;
-
-  print_string "dep 20\n";
-  deplacer_case !ivide !jvide 0;
-  getposblack 0;
-  remp_graph taille;
+  deplace 3;
+  deplace 0;
 
   for i=0 to (taille - 2 - !ivide) do
-    deplacer_case !ivide !jvide 1;
-    getposblack 0;
-    remp_graph taille;
+    deplace 1;
   done;
 
   for i=0 to (taille-2 - !jvide) do
-    deplacer_case !ivide !jvide 0;
-    getposblack 0;
-    remp_graph taille;
+    deplace 0;
   done;;
 
 let last_piece case=
@@ -787,19 +632,13 @@ let last_piece case=
  getposblack 0;
  etape :=0;
  for i=0 to (taille-2 - !jvide) do
-   deplacer_case !ivide !jvide 0;
-   getposblack 0;
-   remp_graph taille;
+   deplace 0;
  done;
  for i=0 to (taille-2 - !ivide) do
-   deplacer_case !ivide !jvide 1;
-   getposblack 0;
-   remp_graph taille;
+   deplace 1;
  done;
  for i=0 to (taille-2 - !jvide) do
-   deplacer_case !ivide !jvide !etape;
-   getposblack 0;
-   remp_graph taille;
+   deplace !etape;
  done;
  while !icase != !icaseres || !jcase != !jcaseres do
 
@@ -807,29 +646,20 @@ let last_piece case=
     etape:=0;
   if !etape==0 then
   begin
-    print_string "droite\n";
       for i=0 to (taille-2 - !jvide) do
-        deplacer_case !ivide !jvide !etape;
-        getposblack 0;
-        remp_graph taille;
+        deplace !etape;
       done;
       etape := !etape+1;
   end
   else if !etape==1 then
   begin
-    print_string "bas\n";
     for i=0 to (taille - 2 - !ivide) do
-      deplacer_case !ivide !jvide 1;
-      getposblack 0;
-      remp_graph taille;
+      deplace 1;
     done;
     etape := !etape+1;
   end
   else begin
-    print_string "autre\n";
-    deplacer_case !ivide !jvide !etape;
-    getposblack 0;
-    remp_graph taille;
+    deplace !etape;
     etape := !etape+1;
   end;
 
@@ -837,9 +667,7 @@ let last_piece case=
 
  done;
  for i=0 to (taille - 2 - !ivide) do
-   deplacer_case !ivide !jvide 1;
-   getposblack 0;
-   remp_graph taille;
+   deplace 1;
  done;;
 
  let resolve taille =
