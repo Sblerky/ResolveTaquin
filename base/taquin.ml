@@ -3,7 +3,7 @@ module R = Random;;
 module A = Array;;
 module U = Unix;;
 
-let taille = 5;;
+let taille = 7;;
 let div = 700/taille;;
 
 open_graph " 700x700";;
@@ -75,7 +75,7 @@ let remp_graph n =
                 end
         done;
     done;;
-    
+
     (*ignore (Graphics.read_key ());;*)
 
 let remp_graph_pause n =
@@ -169,8 +169,8 @@ let echange_case n nb =
 
 let icase = ref 0;; (* variable contenant le i de la case qu'on cherche a placer*)
 let jcase = ref 0;; (* variable contenant le j de la case qu'on cherche a placer*)
-let inextcase = ref 0;; 
-let jnextcase = ref 0;; 
+let inextcase = ref 0;;
+let jnextcase = ref 0;;
 let icaseres = ref 0;; (* variable contenant le i final de la case qu'on cherche a placer*)
 let jcaseres = ref 0;; (* variable contenant le j final de la case qu'on cherche a placer*)
 let ivide = ref 0;; (* variable contenant le i de la case noire*)
@@ -361,7 +361,7 @@ let rotate case =
         remp_graph taille;
       search case;
     done;;
-  
+
 let rotate2 case =
   search case;
     (*faire des tours pour la placer sue le côté*)
@@ -445,7 +445,7 @@ let get_on_side_debug case=
     if !ivide - !icase <= 1 then begin
     rotate case;
     end;
-    if (!ivide - !icase > 1) && (!icase != !ligneactuelle || !icase != taille-1 || !jcase != !colonneactuelle || !jcase != taille-1) then begin 
+    if (!ivide - !icase > 1) && (!icase != !ligneactuelle || !icase != taille-1 || !jcase != !colonneactuelle || !jcase != taille-1) then begin
       rotate2 case;
     end;
     for i=0 to (taille -1 - !jvide-1) do
@@ -513,7 +513,7 @@ let get_on_side case =
         getposblack 0;
         remp_graph taille;
       done;
-      for i=0 to (taille - 2 - !ligneactuelle) do  
+      for i=0 to (taille - 2 - !ligneactuelle) do
         deplacer_case !ivide !jvide 1;
         getposblack 0;
         remp_graph taille;
@@ -588,7 +588,7 @@ let placeFin_debug case =
       remp_graph taille;
       placeFin_debug case;
       placeFin_debug (case+1);;
-    
+
 
 
 
@@ -842,50 +842,54 @@ let last_piece case=
    remp_graph taille;
  done;;
 
+ let resolve taille =
+  for i=0 to taille-3 do
+   (*placement premières cases*)
+   for j=1 to taille-2 do
+     place !caseactuelle !etape;
+     caseactuelle := !caseactuelle+1;
+     colonneactuelle := !colonneactuelle+1;
+   done;
+   colonneactuelle := 0;
+   ligneactuelle := !ligneactuelle+1;
+   etape := !etape+1;
+   (*placement dernières cases*)
+
+   placeFin_debug !caseactuelle;
+   placeFin_debug (!caseactuelle+1);
+   (*On reteste une fois si 4 est pas déjà placer avec le déplacement précédent*)
+   placeFin_debug !caseactuelle;
+
+   search_next (!caseactuelle+1);
+    if(!jnextcase == !jcaseres && !jcase== (!jcaseres+1) && !icase == !inextcase) then begin
+     placeFin_debug2 !caseactuelle;
+    end;
+
+   place_prepa_fin !caseactuelle !etape;
+
+   place_coin_haut !caseactuelle;
+
+   place_prepa_fin (!caseactuelle+1) !etape;
+
+   place_coin_haut (!caseactuelle+1);
+   caseactuelle := !caseactuelle+2;
 
 
- remp_graph taille;;
- echange_case taille (50*taille);;
+ done;
+
+ for i = 0 to taille -3 do
+   prepare_col !caseactuelle;
+   colonneactuelle := (!colonneactuelle +1);
+   caseactuelle := (!caseactuelle +1);
+ done;
+ last_piece !caseactuelle;;
 
 
- for i=0 to taille-3 do
-  (*placement premières cases*)
-  for j=1 to taille-2 do
-    place !caseactuelle !etape;
-    caseactuelle := !caseactuelle+1;
-    colonneactuelle := !colonneactuelle+1;
-  done;
-  colonneactuelle := 0;
-  ligneactuelle := !ligneactuelle+1;
-  etape := !etape+1;
-  (*placement dernières cases*)
-  
-  placeFin_debug !caseactuelle;
-  placeFin_debug (!caseactuelle+1);
-  (*On reteste une fois si 4 est pas déjà placer avec le déplacement précédent*)
-  placeFin_debug !caseactuelle;
-    
-  search_next (!caseactuelle+1);
-   if(!jnextcase == !jcaseres && !jcase== (!jcaseres+1) && !icase == !inextcase) then begin 
-    placeFin_debug2 !caseactuelle;
-   end;
 
-  place_prepa_fin !caseactuelle !etape;
+remp_graph taille;;
+echange_case taille (50*taille);;
+read_line();;
+resolve taille;;
 
-  place_coin_haut !caseactuelle;
 
-  place_prepa_fin (!caseactuelle+1) !etape;
-
-  place_coin_haut (!caseactuelle+1);
-  caseactuelle := !caseactuelle+2;
-  
-  
-done;
-
-for i = 0 to taille -3 do
-  prepare_col !caseactuelle;
-  colonneactuelle := (!colonneactuelle +1);
-  caseactuelle := (!caseactuelle +1);
-done;
-last_piece !caseactuelle;;
 (*#use "taquin.ml";;*)
