@@ -689,7 +689,7 @@ let last_piece case=
    placeFin_debug !caseactuelle;
 
    search_next (!caseactuelle+1);
-    if(!jnextcase == !jcaseres && !jcase== (!jcaseres+1) && !icase == !inextcase) then begin
+    if(!jnextcase == !jcaseres && !jcase== (!jcaseres+1) && !icase == !inextcase && !ligneactuelle <= taille-3) then begin
      placeFin_debug2 !caseactuelle;
     end;
 
